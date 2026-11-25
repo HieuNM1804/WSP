@@ -42,11 +42,13 @@ class Kernel:
     def _cmd(self):
         cmd = ["bwrap", "--unshare-all", "--die-with-parent", "--new-session", "--clearenv",
                "--ro-bind", "/usr", "/usr", "--symlink", "usr/lib", "/lib", "--symlink", "usr/lib64", "/lib64",
-               "--symlink", "usr/bin", "/bin", "--proc", "/proc", "--dev", "/dev", "--tmpfs", "/tmp",
+               "--symlink", "usr/bin", "/bin", "--dev", "/dev", "--tmpfs", "/tmp",
                "--ro-bind", SANDBOX_VENV, "/opt/venv",
                "--ro-bind", os.path.join(HERE, "sandbox_lib"), "/opt/kernel",
                "--ro-bind", os.path.join(ROOT, "model"), "/model",
                "--dir", "/practice"]
+        if os.environ.get("WSP_SANDBOX_PROC", "1") != "0":
+            cmd += ["--proc", "/proc"]
         if os.path.isdir(UV_PYTHONS):
             cmd += ["--ro-bind", UV_PYTHONS, UV_PYTHONS]
         for name in ("index.jsonl", "categories.json", "stats.json"):

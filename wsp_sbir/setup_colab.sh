@@ -15,7 +15,8 @@ if ! command -v bwrap >/dev/null; then
     apt-get update -qq
     apt-get install -y -qq bubblewrap
 fi
-bwrap --unshare-all --ro-bind /usr /usr --symlink usr/lib /lib --symlink usr/lib64 /lib64 /usr/bin/true
+bwrap --unshare-all --ro-bind /usr /usr --symlink usr/lib /lib --symlink usr/lib64 /lib64 \
+    --dev /dev --tmpfs /tmp /usr/bin/true
 
 if ! "$gpu" -c 'import ftfy, regex, torchmetrics' 2>/dev/null; then
     "$gpu" -m pip install --no-cache-dir --no-deps ftfy regex torchmetrics lightning-utilities wcwidth
