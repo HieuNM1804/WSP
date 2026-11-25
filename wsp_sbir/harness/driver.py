@@ -13,6 +13,7 @@ Files of a run (as in the released logs):
   requests/fwd_<k>.json.claimed, requests/fwd_<k>.done.json
   work/   the editor's /work (edited/, fwd_<k>/, notes.md, ...)
   edit/   the submitted edit: manifest.json and the edited tensors (float32 .npy, as submitted)
+  result.zip   the completed run's portable archive for GitHub
   notices/  drop a .txt here to deliver a note from the experimenters with the next message
 """
 import argparse
@@ -24,16 +25,19 @@ import shutil
 import subprocess
 import sys
 import time
+from pathlib import Path
 from string import Template
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
+sys.path.insert(0, ROOT)
 sys.path.insert(0, HERE)
 
 import backend_claude  # noqa: E402
 import backend_codex  # noqa: E402
 import resources  # noqa: E402
 from kernel_client import Kernel  # noqa: E402
+from publish_results import archive_run, source_revision  # noqa: E402
 
 GPU_PYTHON = os.environ.get("WSP_GPU_PYTHON", os.path.join(ROOT, "..", "clip_zs_sbir", ".venv", "bin", "python"))
 BACKENDS = {"codex": backend_codex, "claude-code": backend_claude}
@@ -109,7 +113,8 @@ class Run:
         kernel = ("Your kernel is still running with its variables." if self.kernel.alive()
                   else "Your kernel was restarted: its variables are lost (/work is kept).")
         notes_path = os.path.join(self.work, "notes.md")
-        notes = open(notes_path, errors="replace").read()[-8000:] if os.path.exists(notes_path) else "(no notes.md)"
+        notes = (open(notes_path, errors="replace").read()[-8000:]
+                 if os.path.isfile(notes_path) and not os.path.islink(notes_path) else "(no notes.md)")
         files = sorted(os.listdir(self.work))
         return (f"{self.message.rstrip()}\n\nTHIS IS A RESTARTED CONVERSATION (to keep it short): {s['turn']} replies "
                 f"happened before. Forward passes used: {s['passes']} of {c['budget']}; Python runs used: {s['runs']} "
@@ -138,7 +143,7 @@ class Run:
         if restarted:
             s["kernel_restarts"] += 1
         self.tool_log({"kind": "python", "turn": s["turn"] + 1, "run": s["runs"], "s": seconds, "code": code,
-                       "out": out[:6000]})
+                       "out": out})
         return f"OUTPUT of Python run {s['runs']} of at most {c['max_runs']}:\n```\n{out}\n```"
 
     def run_forward(self, text):
@@ -192,7 +197,7 @@ class Run:
                 time.sleep(300)
             summary.setdefault("s", round(time.time() - t0, 1))
         self.tool_log({"kind": "forward", "turn": s["turn"] + 1, "request": k, "ok": summary.get("ok"),
-                       "s": summary.get("s"), "code": text, "out": json.dumps(summary)[:6000]})
+                       "s": summary.get("s"), "code": text, "out": json.dumps(summary)})
         if not summary.get("ok"):
             return f"The forward pass failed and was not counted: {summary.get('error')}"
         s["passes"] += 1
@@ -261,7 +266,7 @@ class Run:
         d = os.path.join(self.dir, "checkpoints", label)
         n = self.write_edit(os.path.join(d, "edit"))
         notes = os.path.join(self.work, "notes.md")
-        if os.path.exists(notes):
+        if os.path.isfile(notes) and not os.path.islink(notes):
             shutil.copy2(notes, os.path.join(d, "notes.md"))
         best = sorted(x for x in os.listdir(self.work) if x.startswith("best"))
         with open(os.path.join(d, "info.json"), "w") as f:
@@ -450,7 +455,7 @@ def create(args):
            "forward_gpu_gb": args.forward_gpu_gb, "work_quota_gb": args.work_quota_gb, "min_disk_gb": args.min_disk_gb,
            "gpu_job_threads": args.gpu_job_threads, "forward_workers": args.forward_workers,
            "eval_workers": args.eval_workers, "eval_batch_size": args.eval_batch_size,
-           "created": now()}
+           "created": now(), "source_commit": source_revision()}
     with open(os.path.join(run_dir, "config.json"), "w") as f:
         json.dump(cfg, f, indent=1)
     state = {"budget": args.budget, "task": task["dataset"], "prompt": "sbir-v3", "turn": 0, "runs": 0, "passes": 0,
@@ -481,8 +486,9 @@ def extend(run_dir, extra, add_checkpoints, extra_runs=None, extra_turns=None):
         if os.path.isdir(os.path.join(run_dir, "edit")) and not os.path.exists(os.path.join(ck, "edit")):
             shutil.copytree(os.path.join(run_dir, "edit"), os.path.join(ck, "edit"))
         for src, dst in (("final_answer.md", f"final_answer_{tag}.md"), ("work/notes.md", None)):
-            if os.path.exists(os.path.join(run_dir, src)):
-                shutil.copy2(os.path.join(run_dir, src), os.path.join(ck, dst or "notes.md"))
+            source = os.path.join(run_dir, src)
+            if os.path.isfile(source) and not os.path.islink(source):
+                shutil.copy2(source, os.path.join(ck, dst or "notes.md"))
         if os.path.exists(os.path.join(run_dir, "final_answer.md")):
             shutil.copy2(os.path.join(run_dir, "final_answer.md"), os.path.join(run_dir, f"final_answer_{tag}.md"))
         if os.path.exists(os.path.join(eval_dir, "final.json")) and not os.path.exists(os.path.join(eval_dir, f"{tag}.json")):
@@ -593,6 +599,11 @@ def main():
         run.save()
         import export_readable
         export_readable.export(run_dir)
+    if run.state["done"]:
+        completed = Path(run_dir).resolve()
+        bundle = completed / "result.zip"
+        archive_run(completed, bundle)
+        print(f"Result bundle: {bundle}", flush=True)
 
 
 if __name__ == "__main__":

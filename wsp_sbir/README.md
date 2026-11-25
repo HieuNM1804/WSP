@@ -129,6 +129,10 @@ are requested, but in tests Opus 5.5 returned empty thinking blocks (only the th
 recorded no reasoning summaries. At the end the driver writes `readable/` (README, prompt, trajectory, passes,
 explanations, notes, final answer), as in `exp8_math/runs/p50c/readable`.
 
+**Result archive.** On completion the driver also writes `runs/<run>/result.zip` with the per-turn records, readable
+export, tool logs, evaluations and submitted edits. See [Results branches](../README.md#results-branches) for the
+Colab download and GitHub publishing workflow.
+
 **Resources** (harness/resources.py). The machine is shared (vLLM servers, databases, other users' GPU jobs) and its
 swap is often full, so the run protects it as follows:
 - Every process the harness starts (kernel, forward pass, evaluation) runs at nice 10 with `oom_score_adj` 1000. If

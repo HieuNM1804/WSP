@@ -104,8 +104,9 @@ def export(run_dir):
 
     for src, dst in (("explanations.md", "explanations.md"), ("work/notes.md", "notes.md"),
                      ("final_answer.md", "final_answer.md")):
-        if os.path.exists(os.path.join(run_dir, src)):
-            shutil.copy2(os.path.join(run_dir, src), os.path.join(out, dst))
+        source = os.path.join(run_dir, src)
+        if os.path.isfile(source) and not os.path.islink(source):
+            shutil.copy2(source, os.path.join(out, dst))
     return out
 
 
