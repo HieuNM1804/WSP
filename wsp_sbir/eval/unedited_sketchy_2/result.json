@@ -1,0 +1,10 @@
+{
+ "run": "unedited",
+ "dataset": "sketchy_2",
+ "unseen_classes": 21,
+ "edited_tensors": [],
+ "num_sketches": 12694,
+ "num_photos": 12552,
+ "mAP@200": 0.36348220705986023,
+ "P@200": 0.33847683668136597
+}

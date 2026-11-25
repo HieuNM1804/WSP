@@ -1,0 +1,9 @@
+{
+ "dataset": "sketchy_1",
+ "categories": 100,
+ "sketches": 56102,
+ "photos": 68397,
+ "skipped_non_files": [
+  "sketch/cow/_contact_sheets"
+ ]
+}

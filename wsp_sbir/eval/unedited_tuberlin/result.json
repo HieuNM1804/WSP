@@ -1,0 +1,10 @@
+{
+ "run": "unedited_tuberlin",
+ "dataset": "tuberlin",
+ "unseen_classes": 30,
+ "edited_tensors": [],
+ "num_sketches": 2130,
+ "num_photos": 27262,
+ "mAP@all": 0.29064857959747314,
+ "P@100": 0.4629811644554138
+}

@@ -1,0 +1,7 @@
+{
+ "dataset": "quickdraw",
+ "categories": 80,
+ "sketches": 236880,
+ "photos": 147177,
+ "skipped_non_files": []
+}

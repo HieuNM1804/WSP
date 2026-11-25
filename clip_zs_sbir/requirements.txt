@@ -1,0 +1,8 @@
+torch
+torchvision
+torchmetrics
+numpy
+pillow
+ftfy
+regex
+tqdm
