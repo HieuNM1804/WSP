@@ -19,4 +19,4 @@ python3 wsp_sbir/publish_results.py --from-bundle /path/to/result.zip
 python3 wsp_sbir/publish_results.py --from-bundle /path/to/result.zip --push
 ```
 
-Each run is published to branch `results/<run>`, with files under `results/<run>/`. Open `summary.json` for metrics and `readable/trajectory.md` for the conversation. To rebuild the archive after a delayed evaluation, use `python3 wsp_sbir/publish_results.py --run wsp_sbir/runs/<run> --push`.
+Colab gives each run a name like `astra-max-sketchy2-20261125-070000-123456`, where the suffix is a UTC timestamp with microseconds. The publisher uses that name for both the branch `results/<run>` and the directory `results/<run>/`. Open `summary.json` for metrics and `readable/trajectory.md` for the conversation. To rebuild the archive after a delayed evaluation, use `python3 wsp_sbir/publish_results.py --run wsp_sbir/runs/<run> --push`.

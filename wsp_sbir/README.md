@@ -18,8 +18,9 @@ clip_zs_sbir/.venv/bin/python wsp_sbir/prepare.py \
   --weights /mnt/c/Users/Admin/.cache/clip/ViT-B-32.pt
 
 # A new run with a budget of 50 forward passes and checkpoints at 10 and 25.
-bash wsp_sbir/run_local.sh --task tasks/sketchy_2 --run runs/s2_astra_50 --budget 50
-bash wsp_sbir/run_local.sh --run runs/s2_astra_50 --resume
+run="runs/astra-max-sketchy2-$(date -u +%Y%m%d-%H%M%S-%6N)"
+bash wsp_sbir/run_local.sh --task tasks/sketchy_2 --run "$run" --budget 50
+bash wsp_sbir/run_local.sh --run "$run" --resume
 ```
 
 `run_local.sh` selects `gpt-6.2-astra` at `max` and sets the RAM, GPU, and disk limits for this machine.
