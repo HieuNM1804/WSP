@@ -16,8 +16,9 @@ if ! command -v bwrap >/dev/null; then
     apt-get update -qq
     apt-get install -y -qq bubblewrap
 fi
-bwrap --unshare-all --ro-bind /usr /usr --symlink usr/lib /lib --symlink usr/lib64 /lib64 \
-    --dev /dev --tmpfs /tmp /usr/bin/true
+sandbox=(bwrap --unshare-all --ro-bind /usr /usr --symlink usr/lib /lib --symlink usr/lib64 /lib64
+         --dev /dev --tmpfs /tmp)
+"${sandbox[@]}" /usr/bin/true
 
 if ! "$gpu" -c 'import ftfy, regex, torchmetrics' 2>/dev/null; then
     "$gpu" -m pip install --no-cache-dir --no-deps ftfy regex torchmetrics lightning-utilities wcwidth
@@ -34,7 +35,8 @@ if ! "$cpu" -c 'import torch, numpy, scipy, pandas, sklearn, PIL, sympy, network
     uv pip install --python "$cpu" --no-cache torch --index-url https://download.pytorch.org/whl/cpu
     uv pip install --python "$cpu" --no-cache numpy scipy pandas scikit-learn pillow sympy networkx safetensors
 fi
-bwrap --unshare-all --ro-bind /usr /usr --symlink usr/lib /lib --symlink usr/lib64 /lib64 +    --dev /dev --tmpfs /tmp --ro-bind "$PWD/wsp_sbir/.venv_sandbox" /opt/venv +    /opt/venv/bin/python -I -c 'import numpy, torch; assert torch.version.cuda is None'
+"${sandbox[@]}" --ro-bind "$PWD/wsp_sbir/.venv_sandbox" /opt/venv \
+    /opt/venv/bin/python -I -c 'import numpy, torch; assert torch.version.cuda is None'
 
 if [[ ! -x .colab-tools/node_modules/.bin/codex ]]; then
     npm install --prefix "$PWD/.colab-tools" --no-fund --no-audit @openai/codex
