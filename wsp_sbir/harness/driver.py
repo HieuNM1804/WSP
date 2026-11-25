@@ -35,7 +35,7 @@ import backend_codex  # noqa: E402
 import resources  # noqa: E402
 from kernel_client import Kernel  # noqa: E402
 
-GPU_PYTHON = os.path.join(ROOT, "..", "clip_zs_sbir", ".venv", "bin", "python")
+GPU_PYTHON = os.environ.get("WSP_GPU_PYTHON", os.path.join(ROOT, "..", "clip_zs_sbir", ".venv", "bin", "python"))
 BACKENDS = {"codex": backend_codex, "claude-code": backend_claude}
 BLOCK_RE = re.compile(r"```(python|forward)[ \t]*\n(.*?)```", re.S)
 ANY_FENCE_RE = re.compile(r"```[^\n]*\n.*?```", re.S)

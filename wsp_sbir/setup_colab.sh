@@ -4,7 +4,7 @@ set -euo pipefail
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
 dataset="${1:-/content/Sketchy}"
 weights="$PWD/ViT-B-32.pt"
-gpu=clip_zs_sbir/.venv/bin/python
+gpu="${WSP_GPU_PYTHON:-$(command -v python3)}"
 cpu=wsp_sbir/.venv_sandbox/bin/python
 
 if [[ ! -d "$dataset/sketch" || ! -d "$dataset/photo" ]]; then
@@ -17,13 +17,10 @@ if ! command -v bwrap >/dev/null; then
 fi
 bwrap --unshare-all --ro-bind /usr /usr --symlink usr/lib /lib --symlink usr/lib64 /lib64 /usr/bin/true
 
-if [[ ! -x "$gpu" ]]; then
-    python3 -m venv --without-pip --system-site-packages clip_zs_sbir/.venv
-fi
 if ! "$gpu" -c 'import ftfy, regex, torchmetrics' 2>/dev/null; then
-    python3 -m pip --python "$gpu" install --no-cache-dir ftfy regex torchmetrics
+    "$gpu" -m pip install --no-cache-dir --no-deps ftfy regex torchmetrics lightning-utilities wcwidth
 fi
-"$gpu" -c 'import torch, torchvision; assert torch.cuda.is_available(); print("GPU:", torch.cuda.get_device_name())'
+"$gpu" -c 'import ftfy, torch, torchmetrics, torchvision; assert torch.cuda.is_available(); print("GPU:", torch.cuda.get_device_name())'
 
 if [[ ! -x "$cpu" ]]; then
     python3 -m venv --without-pip wsp_sbir/.venv_sandbox
