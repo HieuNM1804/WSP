@@ -18,19 +18,19 @@ fi
 bwrap --unshare-all --ro-bind /usr /usr --symlink usr/lib /lib --symlink usr/lib64 /lib64 /usr/bin/true
 
 if [[ ! -x "$gpu" ]]; then
-    python3 -m venv --system-site-packages clip_zs_sbir/.venv
+    python3 -m venv --without-pip --system-site-packages clip_zs_sbir/.venv
 fi
 if ! "$gpu" -c 'import ftfy, regex, torchmetrics' 2>/dev/null; then
-    "$gpu" -m pip install --no-cache-dir ftfy regex torchmetrics
+    python3 -m pip --python "$gpu" install --no-cache-dir ftfy regex torchmetrics
 fi
 "$gpu" -c 'import torch, torchvision; assert torch.cuda.is_available(); print("GPU:", torch.cuda.get_device_name())'
 
 if [[ ! -x "$cpu" ]]; then
-    python3 -m venv wsp_sbir/.venv_sandbox
+    python3 -m venv --without-pip wsp_sbir/.venv_sandbox
 fi
 if ! "$cpu" -c 'import torch, numpy, scipy, pandas, sklearn, PIL, sympy, networkx, safetensors; assert torch.version.cuda is None' 2>/dev/null; then
-    "$cpu" -m pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
-    "$cpu" -m pip install --no-cache-dir numpy scipy pandas scikit-learn pillow sympy networkx safetensors
+    uv pip install --python "$cpu" --no-cache torch --index-url https://download.pytorch.org/whl/cpu
+    uv pip install --python "$cpu" --no-cache numpy scipy pandas scikit-learn pillow sympy networkx safetensors
 fi
 
 if [[ ! -x .colab-tools/node_modules/.bin/codex ]]; then
