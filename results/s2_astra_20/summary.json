@@ -1,0 +1,37 @@
+{
+  "run": "s2_astra_20",
+  "source_commit": "475117e7234273e8647b6a268ab34b5ab505bd55",
+  "dataset": "sketchy_2",
+  "model": "gpt-6.2-astra",
+  "effort": "max",
+  "budget": 20,
+  "completed_passes": 20,
+  "completed_turns": 58,
+  "done": true,
+  "evaluations": {
+    "final": {
+      "dataset": "sketchy_2",
+      "unseen_classes": 21,
+      "num_sketches": 12694,
+      "num_photos": 12552,
+      "mAP@200": 0.7299038171768188,
+      "P@200": 0.6981337070465088
+    },
+    "pass_010": {
+      "dataset": "sketchy_2",
+      "unseen_classes": 21,
+      "num_sketches": 12694,
+      "num_photos": 12552,
+      "mAP@200": 0.7217805981636047,
+      "P@200": 0.6896616816520691
+    },
+    "pass_020": {
+      "dataset": "sketchy_2",
+      "unseen_classes": 21,
+      "num_sketches": 12694,
+      "num_photos": 12552,
+      "mAP@200": 0.7299038171768188,
+      "P@200": 0.6981337070465088
+    }
+  }
+}
