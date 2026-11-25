@@ -6,7 +6,7 @@ WSP lets an editor model inspect and modify CLIP ViT-B/32 weights, using seen Sk
 - [CLIP retrieval baseline](clip_zs_sbir/README.md)
 - [Colab notebook](https://colab.research.google.com/github/HieuNM1804/WSP/blob/main/colab.ipynb)
 
-The notebook downloads the public Kaggle Sketchy v1 archive directly into the GPU runtime and verifies the 125-category layout. A fresh runtime needs to prepare its own model and task files. Full WSP execution also needs a working `bubblewrap` namespace sandbox and an authenticated Codex CLI with access to the editor model.
+The notebook downloads the public Kaggle Sketchy v1 archive directly into the GPU runtime and verifies the 125-category layout. Its setup cell checks `bubblewrap`, reuses Colab's CUDA PyTorch, and prepares the model and task files for both Sketchy splits. Before launching WSP, sign in to the notebook's Linux Codex CLI with an account that can use the editor model.
 
 ## Results branches
 
